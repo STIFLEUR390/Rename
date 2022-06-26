@@ -1,82 +1,93 @@
 <?php
-$a = 0;
-$b = 0;
-
-if (isset($_POST['rename'])) {
-$currentdate = date("dmY");
-// $fileexist = file_exists("E:\SCAN\Martial Peak\martial-peak-c393.cbr");
-// $datefile = date("dmY", fileatime("E:\SCAN\Martial Peak\martial-peak-c393.cbr"));
-// var_dump($fileexist, $currentdate, $datefile);
-// die();
-
-	# code...
-	foreach (glob($_POST['chemin_dosier'].'/*'.$_POST['ext_dep']) as $value) {
-		$a++;
-		$newname = substr($value, 0, -3).''.$_POST['ext_fin'];
-		// rename( string $oldname, string $newname[, resource $context] ) : bool
-		rename($value, $newname);
-		touch($newname);
-	}
-
-	foreach (glob($_POST['chemin_dosier'].'/*'.$_POST['ext_fin']) as $filename) {
-		$datefile = date("dmY", fileatime($filename));
-		if(file_exists($filename) && ($datefile == $currentdate)) {
-			$b++;
-		}
-	}
-
-	
-}
-
+session_start();
 ?>
 
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="fr">
+
 <head>
-	<title>Renomer fichier</title>
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link rel="stylesheet" href="./css//bootstrap.css">
 </head>
+
 <body>
-	<div class="container py-4">
-		<div class="card">
-		  <div class="card-header">
-		    Changer extension fichiers d'un dossier
-		  </div>
-		  <div class="card-body">
-		  	<?php 
-		  	if (isset($_POST)) {
-				if ($a == $b) {
-					echo "<pre><h5 class='card-title'>Tous les fichiers on été renommer (".$a." fichiers renommer)</h5></pre>";
-				}else if ($a == 0){
-					echo "<pre><h5 class='card-title'>Aucun fichier avec l'extension ".$_POST['ext_dep']." trouver dans le dossier entrée</h5></pre>";
-				}else{
-					echo "<pre><h5 class='card-title'>Certain fichier n'on pas été renommer (".($b-$a)." fichiers non renommer)</h5></pre>";
-				}
-		  	}
-		  	?>
-		    <!-- <h5 class="card-title">D'une</h5> -->
-		    <form method="POST" action="">
-		    	<div class="form-group">
-		    		<label>Extension de départ</label>
-		    		<input type="text" name="ext_dep" class="form-control" aria-describedby="extensionDepart" value="<?php if(isset($_POST['ext_dep'])){ echo $_POST['ext_dep']; } ?>">
-		    		<small id="extensionDepart" class="form-text text-muted">Verifier diectement a partir des fichiers</small>
-		    	</div>
-		    	<div class="form-group">
-		    		<label>Extension voulue</label>
-		    		<input type="text" name="ext_fin" class="form-control" aria-describedby="extensionFin" value="<?php if(isset($_POST['ext_fin'])){ echo $_POST['ext_fin']; } ?>">
-		    		<small id="extensionFin" class="form-text text-muted">Entrer uniquement l'extension sans le point(<strong>.</strong>)</small>
-		    	</div>
-		    	<div class="form-group">
-		    		<label>Chemin absolue du dossier</label>
-		    		<input type="text" name="chemin_dosier" class="form-control" aria-describedby="cheminDossier">
-		    		<small id="cheminDossier" class="form-text text-muted">recuperer le chemin depuis la barre de navigation</small>
-		    	</div>
-		    	<button class="btn btn-primary" type="submit" name="rename">Renomer</button>
-		    </form>		    
-		    <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
-		  </div>
-		</div>
-	</div>
-	<script type="text/javascript" src="js/bootstrap.bundle.js"></script>
+
+    <div class="container mt-2">
+        <div class="card">
+            <h5 class="card-header">Redirection http</h5>
+            <div class="card-body">
+
+                <form action="./traitement.php" method="post">
+                    <button type="submit" name="redirection" class="btn btn-primary">redirection https</button>
+                </form>
+            </div>
+        </div>
+        <div class="card my-3">
+            <h5 class="card-header">Changer l'extension des fichiers sans les renomers</h5>
+            <div class="card-body">
+                <?php
+                    if (isset($_SESSION['changer_extension_msg'])) {
+                        echo $_SESSION['changer_extension_msg'];
+                    }
+				?>
+                <!-- <h5 class="card-title">Special title treatment</h5> -->
+
+                <form action="./traitement.php" method="post">
+                    <div class="mb-3">
+                        <label for="ext_dep" class="form-label">Extension de départ</label>
+                        <input type="text" name="ext_dep" class="form-control" id="ext_dep">
+                        <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="ext_fin" class="form-label">Extension de fin</label>
+                        <input type="text" name="ext_fin" class="form-control" id="ext_fin">
+                        <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="che_dos" class="form-label">Chemin absolue vers le dossier</label>
+                        <input type="text" name="che_dos" class="form-control" id="che_dos">
+                        <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                    </div>
+                    <button type="submit" name="changer_extension" class="btn btn-primary">changer les extensions</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <h5 class="card-header">Ajouter un prefix devant les noms des fichiers</h5>
+            <div class="card-body">
+            <?php
+                    if (isset($_SESSION['ajouter_prefix_msg'])) {
+                        echo $_SESSION['ajouter_prefix_msg'];
+                    }
+				?>
+                <!-- <h5 class="card-title">Special title treatment</h5> -->
+
+                <form action="./traitement.php" method="post">
+                    <div class="mb-3">
+                        <label for="ext_fich" class="form-label">Extension des fichiers</label>
+                        <input type="text" name="ext_fich" class="form-control" id="ext_fich">
+                        <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="name_pref" class="form-label">Nom (prefix)</label>
+                        <input type="text" name="name_pref" class="form-control" id="name_pref">
+                        <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="chem_dos" class="form-label">Chemin absolue vers le dossier</label>
+                        <input type="text" name="chem_dos" class="form-control" id="chem_dos">
+                        <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                    </div>
+                    <button type="submit" name="ajouter_prefix" class="btn btn-primary">Ajouter le prefix aux fichiers</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.js"></script>
 </body>
+
 </html>
