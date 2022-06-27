@@ -2,49 +2,133 @@
 session_start();
 
 $nombre_fichier_depart = 0;
-
 $nombre_fichier_traiter = 0;
+$current_time = time();
+
+
+/* $filename = 'D:/Scan backup/ Tomb Raider King/Tomb Raider King Chapitre 1 - 20.cbz';
+if (file_exists($filename)) {
+    echo "$filename a été accédé le : " . date("F d Y H:i:s.", fileatime($filename))."<br>";
+}
+
+if (file_exists($filename)) {
+    echo "$filename a été modifié le : " . date ("F d Y H:i:s.", filemtime($filename))."<br>";
+} */
 
 if (isset($_POST['changer_extension'])) {
-    $currentdate = date("dmY");
+
     $str = strlen($_POST['ext_dep']) * -1;
 
     foreach (glob($_POST['che_dos'] . '/*' . $_POST['ext_dep']) as $filename) {
         $nombre_fichier_depart++;
 		$newname = substr($filename, 0, $str) . '' . $_POST['ext_fin'];
 		rename($filename, $newname);
-		touch($newname);
+		touch($newname, $current_time);
     }
 
     foreach (glob($_POST['che_dos'] . '/*' . $_POST['ext_fin']) as $fil) {
-        $datefile = date("dmY", fileatime($fil));
-		if (file_exists($fil) && ($datefile == $currentdate)) {
+		if (file_exists($fil) && ($current_time == fileatime($fil))) {
 			$nombre_fichier_traiter++;
 		}
     }
 
     if ($nombre_fichier_depart == $nombre_fichier_traiter) {
-        $msg = "<pre><h5 class='card-title'>Tous les fichiers on été renommer (" . $nombre_fichier_depart . " fichiers renommer)</h5></pre>";
+        $type = 'success';
+        $msg = "Tous les fichiers on été renommer (" . $nombre_fichier_depart . " fichiers renommer)";
     } else if ($nombre_fichier_depart == 0) {
-        $msg = "<pre><h5 class='card-title'>Aucun fichier avec l'extension " . $_POST['ext_dep'] . " trouver dans le dossier entrée</h5></pre>";
+        $type = 'error';
+        $msg = "Aucun fichier avec l'extension " . $_POST['ext_dep'] . " trouver dans le dossier entrée";
     } else {
-        $msg = "<pre><h5 class='card-title'>Certain fichier n'on pas été renommer (" . ($nombre_fichier_traiter - $nombre_fichier_depart) . " fichiers non renommer)</h5></pre>";
+        $type = 'warning';
+        $msg = "Certain fichier n'on pas été renommer (" . ($nombre_fichier_traiter - $nombre_fichier_depart) . " fichiers non renommer)";
     }
 
-    $_SESSION['changer_extension_msg'] = $msg;
 }
 
 if (isset($_POST['ajouter_prefix'])) {
-
     $str = strlen($_POST['chem_dos']) + 1;
 
     foreach (glob($_POST['chem_dos'] . '/*' . $_POST['ext_fich']) as $filename) {
-		$newname = $_POST['chem_dos'].'/'.$_POST['name_pref'].' '. substr($filename, $str);
+        $nombre_fichier_depart++;
+		$newname = $_POST['chem_dos'].'/'.$_POST['name_pref'].''. substr($filename, $str);
 		rename($filename, $newname);
-		touch($newname);
+		touch($newname, $current_time);
     }
 
-    $_SESSION['ajouter_prefix_msg'] = "<pre><h5 class='card-title'> le prefix a été ajouter avec success</h5></pre>";
+    foreach (glob($_POST['chem_dos'] . '/*' . $_POST['ext_fich']) as $fil) {
+		if (file_exists($fil) && ($current_time == fileatime($fil))) {
+			$nombre_fichier_traiter++;
+		}
+    }
+
+    if ($nombre_fichier_depart == $nombre_fichier_traiter) {
+        $type = 'success';
+        $msg = "Le prefic a été ajouter a tous les fichiers (" . $nombre_fichier_depart . " fichiers modifier)";
+    } else if ($nombre_fichier_depart == 0) {
+        $type = 'error';
+        $msg = "Aucun fichier avec l'extension " . $_POST['ext_fich'] . " trouver dans le dossier entrée";
+    } else {
+        $type = 'warning';
+        $msg = "Le prefix n'a pas pu être ajouter a certain fichier (" . ($nombre_fichier_traiter - $nombre_fichier_depart) . " fichiers)";
+    }
+}
+
+if (isset($_POST['sup_carac'])) {
+    $str = strlen($_POST['chem_doss']) + 1;
+
+    foreach (glob($_POST['chem_doss'] . '/*' . $_POST['ext_fich']) as $filename) {
+        $nombre_fichier_depart++;
+		$newname = $new_msg = $_POST['chem_doss'].'/'.str_replace($_POST['carac_name'], '', substr($filename, $str));
+		rename($filename, $newname);
+		touch($newname, $current_time);
+    }
+
+    foreach (glob($_POST['chem_doss'] . '/*' . $_POST['ext_fich']) as $fil) {
+		if (file_exists($fil) && ($current_time == fileatime($fil))) {
+			$nombre_fichier_traiter++;
+		}
+    }
+
+    if ($nombre_fichier_depart == $nombre_fichier_traiter) {
+        $type = 'success';
+        $msg = "le caractère a été supprimer du nom de tous les fichiers (" . $nombre_fichier_depart . " fichiers modifier)";
+    } else if ($nombre_fichier_depart == 0) {
+        $type = 'error';
+        $msg = "Aucun fichier avec l'extension " . $_POST['ext_fich'] . " trouver dans le dossier entrée";
+    } else {
+        $type = 'warning';
+        $msg = "le caractère n'a pas pu être supprimer du nom de certain fichier (" . ($nombre_fichier_traiter - $nombre_fichier_depart) . " fichiers)";
+    }
+}
+
+
+
+if (isset($_POST['remp_carac'])) {
+    $str = strlen($_POST['chem_dos']) + 1;
+
+    foreach (glob($_POST['chem_dos'] . '/*' . $_POST['ext_fich']) as $filename) {
+        $nombre_fichier_depart++;
+		$newname = $new_msg = $_POST['chem_dos'].'/'.str_replace($_POST['carac_dep'], $_POST['carac_fin'], substr($filename, $str));
+		rename($filename, $newname);
+		touch($newname, $current_time);
+    }
+
+    foreach (glob($_POST['chem_dos'] . '/*' . $_POST['ext_fich']) as $fil) {
+		if (file_exists($fil) && ($current_time == fileatime($fil))) {
+			$nombre_fichier_traiter++;
+		}
+    }
+
+    if ($nombre_fichier_depart == $nombre_fichier_traiter) {
+        $type = 'success';
+        $msg = "le caractère a été remplacer du nom de tous les fichiers (" . $nombre_fichier_depart . " fichiers modifier)";
+    } else if ($nombre_fichier_depart == 0) {
+        $type = 'error';
+        $msg = "Aucun fichier avec l'extension " . $_POST['ext_fich'] . " trouver dans le dossier entrée";
+    } else {
+        $type = 'warning';
+        $msg = "le caractère n'a pas pu être remplacer du nom de certain fichier (" . ($nombre_fichier_traiter - $nombre_fichier_depart) . " fichiers)";
+    }
 }
 
 if (isset($_POST['redirection'])) {
@@ -58,4 +142,7 @@ if (isset($_POST['redirection'])) {
     }
 }
 
+
+$_SESSION['type'] = $type;
+$_SESSION['message'] = $msg;
 header('Location: index.php');
